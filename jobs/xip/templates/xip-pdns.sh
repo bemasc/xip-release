@@ -78,21 +78,23 @@ qtype_is() {
   [ "$QTYPE" = "$1" ] || [ "$QTYPE" = "ANY" ]
 }
 
+# ${VAR,,} makes the variable lower-case, for case-insensitive matching.
 qname_matches_domain() {
-  [[ "$QNAME" =~ $XIP_DOMAIN_PATTERN ]]
+  [[ "${QNAME,,}" =~ $XIP_DOMAIN_PATTERN ]]
 }
 
 qname_is_root_domain() {
-  [ "$QNAME" = "$XIP_DOMAIN" ]
+  [ "${QNAME,,}" = "$XIP_DOMAIN" ]
 }
 
 qname_is_mx_domainkey() {
-  [ "$QNAME" = "mx._domainkey.$XIP_DOMAIN" ]
+  [ "${QNAME,,}" = "mx._domainkey.$XIP_DOMAIN" ]
 }
 
 extract_subdomain_from_qname() {
   SUBDOMAIN="${QNAME:0:${#QNAME}-${#XIP_DOMAIN}}"
   SUBDOMAIN="${SUBDOMAIN%.}"
+  SUBDOMAIN="${SUBDOMAIN,,}"
 }
 
 subdomain_is_ns() {
