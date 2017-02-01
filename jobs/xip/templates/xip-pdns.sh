@@ -11,6 +11,7 @@ XIP_NS_ADDRESSES=( "127.0.0.1" )
 XIP_MX_RECORDS=( )
 XIP_MX_DOMAINKEYS=( )
 XIP_TXT_RECORDS=( )
+XIP_PSL=( )
 XIP_TIMESTAMP="0"
 XIP_TTL=300
 
@@ -89,6 +90,10 @@ qname_is_root_domain() {
 
 qname_is_mx_domainkey() {
   [ "${QNAME,,}" = "mx._domainkey.$XIP_DOMAIN" ]
+}
+
+qname_is_psl() {
+  [ "${QNAME,,}" = "_psl.$XIP_DOMAIN" ]
 }
 
 extract_subdomain_from_qname() {
@@ -174,6 +179,12 @@ answer_txt_query() {
   done
 }
 
+answer_psl_query() {
+  for rdata in "${XIP_PSL[@]}"; do
+    send_answer "TXT" "$rdata"
+  done
+}
+
 answer_subdomain_a_query_for() {
   local type="$1"
   local address="$(resolve_${type}_subdomain)"
@@ -218,6 +229,11 @@ while read_query; do
     elif qname_is_mx_domainkey; then
       if qtype_is "TXT"; then
         answer_mx_domainkey_query
+      fi
+
+    elif qname_is_psl; then
+      if qtype_is "TXT"; then
+        answer_psl_query
       fi
 
     elif qtype_is "A"; then
